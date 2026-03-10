@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231a1a2e'/><text x='16' y='24' font-size='22' font-weight='bold' text-anchor='middle' fill='%236c63ff' font-family='Arial'>#</text></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Save your recovery phrase — Django Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #080808;
+      --surface:   #111111;
+      --surface2:  #161616;
+      --border:    #1e1e1e;
+      --border2:   #2a2a2a;
+      --green:     #86d99f;
+      --green-dim: rgba(134,217,159,.1);
+      --green-glow:rgba(134,217,159,.22);
+      --text:      #f2f2f2;
+      --muted:     #555;
+      --sub:       #888;
+      --warn-bg:   rgba(255,190,50,.07);
+      --warn-border: rgba(255,190,50,.25);
+      --warn-text: #ffd060;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,.9);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-logo {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .nav-logo img { width: 22px; height: 22px; filter: invert(1); display: block; }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5.5rem 1.5rem 3rem;
+      position: relative;
+    }
+
+    main::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 600px;
+      background: radial-gradient(circle, rgba(134,217,159,.05) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2.25rem;
+    }
+
+    .card-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .card-logo img { width: 36px; height: 36px; filter: invert(1); }
+
+    .card h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      text-align: center;
+      margin-bottom: .45rem;
+    }
+
+    .card-sub {
+      font-size: .85rem;
+      color: var(--sub);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Warning banner */
+    .warning {
+      display: flex;
+      gap: .75rem;
+      align-items: flex-start;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .warning-icon {
+      font-size: 1.1rem;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .warning p {
+      font-size: .82rem;
+      color: var(--warn-text);
+      line-height: 1.55;
+    }
+
+    .warning strong { font-weight: 600; }
+
+    /* 12-word grid */
+    .phrase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .65rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .word-tile {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 9px;
+      padding: .65rem .9rem;
+      user-select: none;
+    }
+
+    .word-num {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 18px;
+      text-align: right;
+    }
+
+    .word-text {
+      font-size: .92rem;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: .01em;
+    }
+
+    /* Action buttons row */
+    .actions {
+      display: flex;
+      gap: .75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: .65rem .85rem;
+      background: transparent;
+      color: var(--green);
+      border: 1px solid rgba(134,217,159,.35);
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+    }
+
+    .btn-secondary:hover {
+      background: var(--green-dim);
+      border-color: rgba(134,217,159,.6);
+    }
+
+    /* Confirm checkbox area */
+    .confirm-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .confirm-row input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--green);
+      flex-shrink: 0;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    .confirm-row label {
+      font-size: .83rem;
+      color: var(--sub);
+      cursor: pointer;
+      line-height: 1.5;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: .78rem;
+      background: var(--green);
+      color: #06120a;
+      border: none;
+      border-radius: 9px;
+      font-family: 'Inter', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .1s, box-shadow .15s, opacity .15s;
+    }
+
+    .btn-submit:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .btn-submit:not(:disabled):hover {
+      background: #9ae4b1;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--green-glow);
+    }
+
+    .btn-submit:not(:disabled):active { transform: translateY(0); box-shadow: none; }
+
+    /* Copy feedback toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #1a1a1a;
+      border: 1px solid var(--border2);
+      color: var(--green);
+      font-size: .83rem;
+      font-weight: 500;
+      padding: .6rem 1.2rem;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/service_apps/images/logo.svg" alt="Django Base logo">
+    Django Base
+  </a>
+</nav>
+
+<main>
+  <div class="card">
+    <div class="card-logo">
+      <img src="/service_apps/images/logo.svg" alt="Django Base">
+    </div>
+    <h1>Your recovery phrase</h1>
+    <p class="card-sub">This is the only way to log in to your account — save it now</p>
+
+    <div class="warning">
+      <span class="warning-icon">&#9888;</span>
+      <p><strong>Never share your recovery phrase.</strong> Anyone with these 12 words can access your wallet. Django Base will never ask you for them.</p>
+    </div>
+
+    <div class="phrase-grid" id="phraseGrid">
+      {% for word in words %}
+        <div class="word-tile">
+          <span class="word-num">{{ forloop.counter }}</span>
+          <span class="word-text">{{ word }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="copyPhrase()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy all words
+      </button>
+      <button class="btn-secondary" onclick="downloadPhrase()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download .txt
+      </button>
+    </div>
+
+    <div class="confirm-row">
+      <input type="checkbox" id="savedConfirm" onchange="toggleContinue(this)">
+      <label for="savedConfirm">I have saved my recovery phrase in a safe place. I understand that if I lose it, I cannot recover my account.</label>
+    </div>
+
+    <a href="{% url 'account:login' %}" id="continueBtn">
+      <button class="btn-submit" id="continueSubmit" disabled>Continue to log in</button>
+    </a>
+  </div>
+</main>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<footer>&copy; 2026 Django Base</footer>
+
+{{ mnemonic|json_script:"mnemonic-data" }}
+<script>
+  const MNEMONIC = JSON.parse(document.getElementById('mnemonic-data').textContent);
+
+  function copyPhrase() {
+    navigator.clipboard.writeText(MNEMONIC).then(() => showToast('Copied to clipboard!'));
+  }
+
+  function downloadPhrase() {
+    const words = MNEMONIC.trim().split(/\s+/);
+    const numbered = words.map((w, i) => `${i + 1}. ${w}`).join('\n');
+    const content = `Django Base Recovery Phrase\n${'='.repeat(26)}\n\n${numbered}\n\nKEEP THIS FILE SAFE. Never share it with anyone.\n`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Django Base-recovery-phrase.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded!');
+  }
+
+  function toggleContinue(cb) {
+    document.getElementById('continueSubmit').disabled = !cb.checked;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // Prevent navigating to login if checkbox not checked
+  document.getElementById('continueBtn').addEventListener('click', function(e) {
+    if (document.getElementById('continueSubmit').disabled) e.preventDefault();
+  });
+</script>
+
+</body>
+</html>
