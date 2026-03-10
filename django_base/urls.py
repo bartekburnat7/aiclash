@@ -17,10 +17,10 @@ Including another URLconf
 from django.conf import settings
 from django.urls import path, include
 from django.contrib import admin
-from django_base import views as main_views
+from django_base import views
 
 urlpatterns = [
-    path('', main_views.home, name='home'),
+    path('', views.home, name='home'),
     path('admin/', admin.site.urls),
     path('account/', include('service_apps.account.urls')),
 ]

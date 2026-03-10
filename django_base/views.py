@@ -3,6 +3,9 @@ from django.http import Http404
 from django.db.models import Count
 
 
+def home(request):
+    """Render homepage."""
+    return render(request, 'home.html')
 
 def error_404_view(request, exception=None):
     """Render custom 404 page."""
