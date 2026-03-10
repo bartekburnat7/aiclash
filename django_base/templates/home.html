@@ -2,28 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23080808'/%3E%3Crect x='14' y='8' width='24' height='84' rx='12' fill='%2386d99f'/%3E%3Crect x='62' y='8' width='24' height='84' rx='12' fill='%2386d99f'/%3E%3Crect x='14' y='38' width='72' height='24' rx='12' fill='%2386d99f'/%3E%3C/svg%3E">
-  <link rel="icon" type="image/svg+xml" href="/service_apps/images/logo.svg">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23e63030'/%3E%3Ctext x='50' y='68' font-size='62' font-weight='900' text-anchor='middle' fill='white' font-family='Arial'%3EAI%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Django Base</title>
+  <title>AIclash.fun — 1v1 AI Battle, Winner Takes All</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg:        #080808;
-      --surface:   #111111;
-      --surface2:  #161616;
-      --border:    #1e1e1e;
-      --border2:   #2a2a2a;
-      --green:     #86d99f;
-      --green-dim: rgba(134,217,159,.12);
-      --green-glow:rgba(134,217,159,.25);
-      --text:      #f2f2f2;
-      --muted:     #666;
-      --sub:       #999;
+      --bg:         #ffffff;
+      --surface:    #f8f8f8;
+      --surface2:   #f0f0f0;
+      --border:     #e8e8e8;
+      --border2:    #d8d8d8;
+      --red:        #e63030;
+      --red-dark:   #c42020;
+      --red-dim:    rgba(230,48,48,.08);
+      --red-glow:   rgba(230,48,48,.22);
+      --text:       #111111;
+      --muted:      #999;
+      --sub:        #666;
     }
 
     html { scroll-behavior: smooth; }
@@ -42,31 +42,28 @@
       top: 0; left: 0; right: 0;
       z-index: 100;
       padding: 0 2rem;
-      height: 60px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--border);
-      background: rgba(8,8,8,.85);
+      background: rgba(255,255,255,.92);
       backdrop-filter: blur(12px);
     }
 
     .nav-logo {
-      font-size: .95rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
       color: var(--text);
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: .45rem;
+      gap: .4rem;
     }
 
-    .nav-logo img {
-      width: 22px; height: 22px;
-      filter: invert(1);
-      display: block;
-    }
+    .nav-logo .ai { color: var(--red); }
+    .nav-logo .clash { color: var(--text); }
 
     .nav-links {
       display: flex;
@@ -78,9 +75,9 @@
     .nav-links a {
       color: var(--sub);
       text-decoration: none;
-      font-size: .85rem;
+      font-size: .875rem;
       font-weight: 500;
-      padding: .4rem .8rem;
+      padding: .4rem .85rem;
       border-radius: 6px;
       transition: color .15s, background .15s;
     }
@@ -89,36 +86,43 @@
 
     .nav-actions { display: flex; gap: .6rem; align-items: center; }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      border-radius: 8px;
-      font-family: inherit;
-      font-weight: 500;
-      font-size: .85rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all .15s ease;
-    }
+    .nav-user { display: flex; align-items: center; gap: .65rem; }
+    .nav-user-name { font-size: .875rem; font-weight: 600; color: var(--text); }
+    .nav-user-wallet { font-size: .78rem; color: var(--sub); font-family: 'Courier New', monospace; background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px; padding: .2rem .55rem; }
 
     .btn-ghost {
-      padding: .42rem .95rem;
+      display: inline-flex; align-items: center;
+      padding: .45rem 1.1rem;
       border: 1px solid var(--border2);
+      border-radius: 8px;
       background: transparent;
       color: var(--sub);
+      font-family: inherit;
+      font-weight: 500;
+      font-size: .875rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .15s;
     }
 
-    .btn-ghost:hover { border-color: var(--border2); background: var(--surface2); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
 
     .btn-primary {
-      padding: .45rem 1.1rem;
-      background: var(--green);
-      border: 1px solid var(--green);
-      color: #07130b;
+      display: inline-flex; align-items: center;
+      padding: .45rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--red);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: .875rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .15s;
     }
 
-    .btn-primary:hover { background: #9ae4b1; border-color: #9ae4b1; }
+    .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 4px 16px var(--red-glow); }
 
     /* ── HERO ── */
     .hero {
@@ -128,7 +132,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 7rem 1.5rem 5rem;
+      padding: 8rem 1.5rem 5rem;
       position: relative;
       overflow: hidden;
     }
@@ -136,10 +140,9 @@
     .hero::before {
       content: '';
       position: absolute;
-      top: -120px; left: 50%;
-      transform: translateX(-50%);
-      width: 720px; height: 720px;
-      background: radial-gradient(circle, rgba(134,217,159,.07) 0%, transparent 70%);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(230,48,48,.07) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -147,52 +150,54 @@
       display: inline-flex;
       align-items: center;
       gap: .5rem;
-      font-size: .75rem;
-      font-weight: 600;
-      letter-spacing: .06em;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
       text-transform: uppercase;
-      color: var(--green);
-      background: var(--green-dim);
-      border: 1px solid rgba(134,217,159,.2);
+      color: var(--red);
+      background: var(--red-dim);
+      border: 1px solid rgba(230,48,48,.2);
       border-radius: 100px;
-      padding: .3rem .85rem;
+      padding: .3rem .9rem;
       margin-bottom: 2rem;
     }
 
     .hero-badge::before {
       content: '';
       width: 6px; height: 6px;
-      background: var(--green);
+      background: var(--red);
       border-radius: 50%;
-      animation: pulse 2s infinite;
+      animation: blink 1.5s infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: .5; transform: scale(1.3); }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .3; }
     }
 
     .hero h1 {
-      font-size: clamp(2.4rem, 6vw, 4.8rem);
-      font-weight: 700;
-      line-height: 1.08;
-      letter-spacing: -.035em;
-      max-width: 820px;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.02;
+      letter-spacing: -.04em;
+      max-width: 900px;
       margin-bottom: 1.5rem;
     }
 
-    .hero h1 em {
-      font-style: normal;
-      background: linear-gradient(135deg, var(--green) 0%, #5ecf86 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .hero h1 .vs {
+      display: inline-block;
+      color: var(--red);
+      background: var(--red-dim);
+      border: 2px solid rgba(230,48,48,.2);
+      border-radius: 12px;
+      padding: 0 .35em;
+      font-style: italic;
     }
 
     .hero-sub {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       color: var(--sub);
-      max-width: 520px;
+      max-width: 540px;
       line-height: 1.7;
       margin-bottom: 2.5rem;
       font-weight: 400;
@@ -200,171 +205,293 @@
 
     .hero-cta {
       display: flex;
-      gap: .9rem;
+      gap: 1rem;
       flex-wrap: wrap;
       justify-content: center;
+      margin-bottom: 3.5rem;
     }
 
-    .btn-hero-primary {
-      padding: .75rem 1.9rem;
-      font-size: .95rem;
-      background: var(--green);
-      color: #06120a;
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
+    .btn-hero {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 2.2rem;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 700;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .18s;
     }
 
-    .btn-hero-primary:hover { background: #9ae4b1; transform: translateY(-1px); box-shadow: 0 8px 28px var(--green-glow); }
+    .btn-hero-red {
+      background: var(--red);
+      border: 2px solid var(--red);
+      color: #fff;
+    }
 
-    .btn-hero-ghost {
-      padding: .75rem 1.9rem;
-      font-size: .95rem;
-      border: 1px solid var(--border2);
+    .btn-hero-red:hover {
+      background: var(--red-dark);
+      border-color: var(--red-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px var(--red-glow);
+    }
+
+    .btn-hero-outline {
       background: transparent;
+      border: 2px solid var(--border2);
       color: var(--sub);
+    }
+
+    .btn-hero-outline:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+
+    /* ── CA BAR ── */
+    .ca-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+      margin-top: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      font-weight: 500;
+      padding: .55rem 1rem;
+      font-size: .82rem;
+    }
+    .ca-label {
+      font-weight: 700;
+      color: var(--sub);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-size: .7rem;
+      flex-shrink: 0;
+    }
+    .ca-addr {
+      font-family: 'Courier New', monospace;
+      color: var(--text);
+      letter-spacing: .02em;
+      max-width: 340px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ca-copy {
+      flex-shrink: 0;
+      padding: .25rem .7rem;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--red);
+      font-family: inherit;
+      font-size: .75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .ca-copy:hover { background: var(--red-dim); }
+    .ca-copy.copied { color: #2a9a2a; border-color: rgba(60,180,60,.3); }
+    .battles {
+      padding: 5rem 1.5rem;
+      background: var(--bg);
     }
 
-    .btn-hero-ghost:hover { background: var(--surface2); color: var(--text); }
-
-    /* ── MARKETPLACE SHOWCASE ── */
-    .showcase {
-      padding: 5rem 1.5rem 4rem;
-    }
-
-    .showcase-inner {
+    .battles-inner {
       max-width: 1080px;
       margin: 0 auto;
     }
 
-    .showcase-header {
+    .battles-header {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: space-between;
+      margin-bottom: 2.5rem;
       flex-wrap: wrap;
       gap: 1rem;
-      margin-bottom: 2rem;
     }
 
-    .showcase-header-left .section-tag { margin-bottom: .4rem; }
-
-    .showcase-header h2 {
-      font-size: clamp(1.3rem, 2.8vw, 1.9rem);
-      font-weight: 700;
+    .battles-header h2 {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
       letter-spacing: -.03em;
-      line-height: 1.2;
+      color: var(--text);
     }
 
-    .showcase-link {
-      font-size: .82rem;
-      color: var(--green);
+    .battles-link {
+      font-size: .875rem;
+      color: var(--red);
       text-decoration: none;
-      font-weight: 500;
-      white-space: nowrap;
-      opacity: .85;
-      transition: opacity .15s;
+      font-weight: 600;
+      transition: color .15s;
     }
 
-    .showcase-link:hover { opacity: 1; }
+    .battles-link:hover { color: var(--red-dark); }
 
-    .mp-cards {
+    .battles-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.2rem;
     }
 
-    .mp-card {
-      background: var(--surface);
+    .battle-card {
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.4rem 1.5rem;
-      text-decoration: none;
-      color: inherit;
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
       display: flex;
       flex-direction: column;
-      gap: .65rem;
-      transition: border-color .2s, background .2s, transform .18s;
+      gap: 0.7rem;
+      transition: border-color .2s;
+      background: white;
     }
 
-    .mp-card:hover {
-      border-color: rgba(134,217,159,.35);
-      background: var(--surface2);
-      transform: translateY(-3px);
+    .battle-card:hover { border-color: rgba(230,48,48,.3); }
+
+    .battle-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .mp-card-logo {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      background: var(--green-dim);
-      border: 1px solid rgba(134,217,159,.18);
+    .battle-status {
+      font-size: .72rem;
+      font-weight: 700;
+      padding: .2rem .55rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .battle-card.live   .battle-status { background: rgba(230,48,48,.08);  color: var(--red); }
+    .battle-card.waiting .battle-status { background: rgba(255,180,50,.1);  color: #e09000; }
+    .battle-card.finished .battle-status { background: rgba(60,180,60,.1);  color: #2a9a2a; }
+
+    .battle-pot-top {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--red);
+    }
+
+    .battle-players {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+
+    .battle-spot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .battle-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--red);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
-      overflow: hidden;
+      color: white;
+      font-weight: bold;
+      font-size: 0.7rem;
+    }
+
+    .battle-circle.open {
+      background: var(--border);
+      color: var(--sub);
+    }
+
+    .battle-circle.winner {
+      background: #2a9a2a;
+    }
+
+    .battle-username {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .battle-username.open {
+      color: var(--sub);
+    }
+
+    .battle-username.winner {
+      color: #2a9a2a;
+      font-weight: 700;
+    }
+
+    .battle-row {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .battle-name {
+      font-size: .875rem;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .battle-vs-inline {
+      font-size: .7rem;
+      font-weight: 900;
+      color: var(--red);
+      padding: .1rem .3rem;
       flex-shrink: 0;
     }
 
-    .mp-card-logo img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      border-radius: 10px;
+    .battle-name.winner {
+      color: var(--red);
     }
 
-    .mp-card-name {
-      font-size: .95rem;
-      font-weight: 600;
-      letter-spacing: -.01em;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .mp-card-owner {
-      font-size: .78rem;
-      color: var(--muted);
-    }
-
-    .mp-card-owner span {
+    .battle-question {
+      font-size: .8rem;
       color: var(--sub);
-      font-weight: 500;
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+      padding-top: .7rem;
     }
 
-    .mp-card-meta {
-      margin-top: auto;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
+    .battle-btn {
+      margin-top: .5rem;
+      padding: .6rem 1.2rem;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      align-self: flex-start;
     }
 
-    .mp-card-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-      font-size: .72rem;
-      font-weight: 500;
-      color: var(--green);
-      background: var(--green-dim);
-      border: 1px solid rgba(134,217,159,.15);
-      border-radius: 100px;
-      padding: .22rem .65rem;
-    }
+    .battle-btn:hover { background: var(--red-dark); }
 
-    .showcase-empty {
-      text-align: center;
-      color: var(--muted);
-      font-size: .875rem;
-      padding: 3rem 0;
-    }
-
-    /* ── FEATURES ── */
-    .features {
-      max-width: 1080px;
-      margin: 0 auto;
+    /* ── HOW IT WORKS ── */
+    .how {
       padding: 6rem 1.5rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .how-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: .85rem;
     }
 
     .section-header {
@@ -372,116 +499,71 @@
       margin-bottom: 3.5rem;
     }
 
-    .section-tag {
-      display: inline-block;
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: .85rem;
-    }
-
     .section-header h2 {
-      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-      font-weight: 700;
-      letter-spacing: -.03em;
-      line-height: 1.2;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -.04em;
+      line-height: 1.15;
     }
 
     .section-header p {
       color: var(--sub);
       font-size: .95rem;
-      margin-top: .75rem;
+      margin-top: .8rem;
       line-height: 1.7;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.2rem;
-    }
-
-    .feature-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.8rem;
-      transition: border-color .2s, background .2s;
-    }
-
-    .feature-card:hover {
-      border-color: var(--border2);
-      background: var(--surface2);
-    }
-
-    .feature-icon {
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      background: var(--green-dim);
-      border: 1px solid rgba(134,217,159,.18);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .feature-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: .45rem;
-      letter-spacing: -.01em;
-    }
-
-    .feature-card p {
-      font-size: .875rem;
-      color: var(--sub);
-      line-height: 1.65;
-    }
-
-    /* ── HOW IT WORKS ── */
-    .how {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 6rem 1.5rem;
-    }
-
-    .how-inner {
-      max-width: 860px;
-      margin: 0 auto;
     }
 
     .steps {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
+      gap: 1.5rem;
     }
 
     .step {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.8rem;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: .7rem;
+      gap: .8rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .step:hover {
+      border-color: rgba(230,48,48,.25);
+      box-shadow: 0 4px 20px rgba(230,48,48,.07);
     }
 
     .step-num {
-      font-size: .75rem;
-      font-weight: 700;
-      color: var(--green);
-      letter-spacing: .06em;
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--red);
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .step h3 { font-size: .95rem; font-weight: 600; letter-spacing: -.01em; }
+    .step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
 
-    .step p { font-size: .85rem; color: var(--sub); line-height: 1.65; }
+    .step p {
+      font-size: .875rem;
+      color: var(--sub);
+      line-height: 1.65;
+    }
 
-    /* ── CTA SECTION ── */
+    /* ── CTA ── */
     .cta-section {
       padding: 7rem 1.5rem;
       text-align: center;
+      background: var(--red);
       position: relative;
       overflow: hidden;
     }
@@ -489,27 +571,49 @@
     .cta-section::before {
       content: '';
       position: absolute;
-      bottom: -100px; left: 50%;
-      transform: translateX(-50%);
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(134,217,159,.055) 0%, transparent 70%);
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,.03) 0px,
+        rgba(255,255,255,.03) 1px,
+        transparent 1px,
+        transparent 20px
+      );
       pointer-events: none;
     }
 
     .cta-section h2 {
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      font-weight: 700;
-      letter-spacing: -.035em;
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: -.04em;
+      color: #fff;
       max-width: 640px;
-      margin: 0 auto 1.1rem;
-      line-height: 1.15;
+      margin: 0 auto 1rem;
+      line-height: 1.1;
     }
 
     .cta-section p {
-      color: var(--sub);
+      color: rgba(255,255,255,.72);
       font-size: .95rem;
       margin-bottom: 2.5rem;
     }
+
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .9rem 2.4rem;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 700;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--red);
+      border: none;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,.2); }
 
     /* ── FOOTER ── */
     footer {
@@ -525,100 +629,11 @@
     }
 
     .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-
     .footer-links a { color: var(--muted); text-decoration: none; transition: color .15s; }
-
     .footer-links a:hover { color: var(--sub); }
 
-    /* ── CONTRACT ── */
-    .contract-section {
-      padding: 5rem 1.5rem;
-    }
-
-    .contract-inner {
-      max-width: 720px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .contract-inner h2 {
-      font-size: clamp(1.4rem, 3vw, 2rem);
-      font-weight: 700;
-      letter-spacing: -.03em;
-      margin-bottom: .6rem;
-    }
-
-    .contract-inner .contract-desc {
-      font-size: .9rem;
-      color: var(--sub);
-      margin-bottom: 1.8rem;
-      line-height: 1.6;
-    }
-
-    .contract-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: 12px;
-      padding: 1rem 1.2rem;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: .9rem;
-      color: var(--green);
-      word-break: break-all;
-      text-align: left;
-      flex-wrap: wrap;
-    }
-
-    .contract-address-text {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .copy-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      padding: .4rem .85rem;
-      background: var(--green-dim);
-      border: 1px solid rgba(134,217,159,.2);
-      border-radius: 7px;
-      color: var(--green);
-      font-size: .78rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s, border-color .15s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .copy-btn:hover { background: rgba(134,217,159,.2); border-color: rgba(134,217,159,.35); }
-    .copy-btn.copied { color: #fff; background: rgba(134,217,159,.3); }
-
-    .contract-explorer-link {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      font-size: .82rem;
-      color: var(--sub);
-      text-decoration: none;
-      margin-top: 1rem;
-      transition: color .15s;
-    }
-
-    .contract-explorer-link:hover { color: var(--green); }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 640px) {
       .nav-links { display: none; }
-      .stats-inner { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
-      .stat-number { font-size: 1.5rem; }
       footer { flex-direction: column; align-items: flex-start; }
     }
   </style>
@@ -628,141 +643,111 @@
 <!-- NAV -->
 <nav>
   <a href="/" class="nav-logo">
-    <img src="/service_apps/images/logo.svg" alt="Django Base logo">
-    Django Base
+    <span class="ai">AIclash.fun</span>
   </a>
   <ul class="nav-links">
-    <li><a href="#features">Features</a></li>
     <li><a href="#how">How it works</a></li>
-    <li><a href="#contract">Contract</a></li>
   </ul>
   <div class="nav-actions">
-    <a href="/account/login" class="btn btn-ghost">Log in</a>
-    <a href="/account/register" class="btn btn-primary">Get started</a>
+    {% if request.user.is_authenticated %}
+      <div class="nav-user">
+        <span class="nav-user-wallet">{{ request.user.public_wallet_address|slice:":6" }}…{{ request.user.public_wallet_address|slice:"-4:" }}</span>
+        <span class="nav-user-name">{{ request.user.username }}</span>
+        <a href="/account/logout" class="btn-ghost" style="font-size:.82rem;">Log out</a>
+      </div>
+    {% else %}
+      <a href="/account/login" class="btn-ghost">Log in</a>
+      <a href="/account/register" class="btn-primary">Start a battle</a>
+    {% endif %}
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">Live on mainnet</div>
-  <h1>The marketplace platform<br>built for <em>on-chain commerce</em></h1>
+  <div class="hero-badge">⚔️ Live 1v1 AI Battles</div>
+  <h1>Put your AI up<br>against theirs.<br><span class="vs">Winner takes all.</span></h1>
   <p class="hero-sub">
-    Launch your own crypto marketplace in minutes. Accept tokens, manage listings, and sell to a global audience — all on-chain.
+    Both players stake the same amount. AI answers the challenge. The AI judge decides who wins — and the winner takes the entire pot.
   </p>
   <div class="hero-cta">
-    <a href="/account/register" class="btn btn-hero-primary">Start for free</a>
-    <a href="#how" class="btn btn-hero-ghost">See how it works</a>
+    <a href="/account/register" class="btn-hero btn-hero-red">⚔️ Enter the arena</a>
+    <a href="#how" class="btn-hero btn-hero-outline">How it works</a>
   </div>
+
+  {% if solana_ca %}
+  <div class="ca-bar">
+    <span class="ca-label">Token CA</span>
+    <span class="ca-addr" id="caAddr">{{ solana_ca }}</span>
+    <button class="ca-copy" onclick="copyCA()" title="Copy address">Copy</button>
+  </div>
+  {% endif %}
 </section>
 
-<!-- MARKETPLACE SHOWCASE -->
-<section class="showcase">
-  <div class="showcase-inner">
-    <div class="showcase-header">
-      <div class="showcase-header-left">
-        <div class="section-tag">Live stores</div>
-        <h2>Explore active marketplaces</h2>
+<!-- AI BATTLES -->
+<section class="battles">
+  <div class="battles-inner">
+    <div class="battles-header">
+      <h2>Live AI Battles</h2>
+      <a href="/battles" class="battles-link">View all battles &rarr;</a>
+    </div>
+    <div class="battles-grid">
+      <div class="battle-card waiting">
+        <div class="battle-top">
+          <div class="battle-status">⏳ Waiting</div>
+          <div class="battle-pot-top">0.6 SOL</div>
+        </div>
+        <div class="battle-players">
+          <div class="battle-spot">
+            <div class="battle-circle">S</div>
+            <div class="battle-username">satoshi</div>
+          </div>
+          <div class="battle-vs-inline">VS</div>
+          <div class="battle-spot">
+            <div class="battle-circle open">?</div>
+            <div class="battle-username open">Open</div>
+          </div>
+        </div>
+        <div class="battle-question">"What's the best programming language for AI?"</div>
+        <button class="battle-btn">Join Battle</button>
       </div>
-      <a href="/account/register" class="showcase-link">Open your own store &rarr;</a>
-    </div>
-    {% if marketplaces %}
-    <div class="mp-cards">
-      {% for mp in marketplaces %}
-      <a href="/{{ mp.name|slugify }}/" class="mp-card">
-        <div class="mp-card-logo">
-          {% if mp.logo %}
-            <img src="{{ mp.logo.url }}" alt="{{ mp.name }}">
-          {% else %}
-            🏪
-          {% endif %}
+      <div class="battle-card finished">
+        <div class="battle-top">
+          <div class="battle-status">✅ Finished</div>
+          <div class="battle-pot-top">0.4 SOL</div>
         </div>
-        <div class="mp-card-name">{{ mp.name }}</div>
-        <div class="mp-card-owner">by <span>{{ mp.owner.username }}</span></div>
-        <div class="mp-card-meta">
-          <span class="mp-card-pill">📦 {{ mp.product_count }} product{{ mp.product_count|pluralize }}</span>
+        <div class="battle-players">
+          <div class="battle-spot">
+            <div class="battle-circle winner">A</div>
+            <div class="battle-username winner">alice</div>
+          </div>
+          <div class="battle-vs-inline">VS</div>
+          <div class="battle-spot">
+            <div class="battle-circle">B</div>
+            <div class="battle-username">bob</div>
+          </div>
         </div>
-      </a>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="showcase-empty">No marketplaces yet — <a href="/account/register" style="color:var(--green);text-decoration:none;">be the first to launch one</a>.</div>
-    {% endif %}
-  </div>
-</section>
-
-
-
-<!-- CONTRACT ADDRESS -->
-<section class="contract-section" id="contract">
-  <div class="contract-inner">
-    <div class="section-tag">On-chain</div>
-    <h2>Token Contract Address</h2>
-    <p class="contract-desc">The official token contract deployed on-chain. Always verify you are interacting with this address.</p>
-    <div class="contract-box">
-      <span class="contract-address-text" id="contractAddress">917Q3vSckwPmjcacjH86x6bm6oTenfMDFLSYR6izpump</span>
-      <button class="copy-btn" onclick="copyContract()">&#x2398; Copy</button>
-    </div>
-    <a
-      href="https://solscan.io/token/0xYourContractAddressHere"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="contract-explorer-link"
-      id="explorerLink"
-    >
-      View on Solscan &rarr;
-    </a>
-  </div>
-</section>
-
-<script>
-  function copyContract() {
-    const addr = document.getElementById('contractAddress').textContent.trim();
-    navigator.clipboard.writeText(addr).then(() => {
-      const btn = document.querySelector('.copy-btn');
-      btn.textContent = '✓ Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.innerHTML = '&#x2398; Copy'; btn.classList.remove('copied'); }, 2000);
-    });
-  }
-</script>
-
-<!-- FEATURES -->
-<section class="features" id="features">
-  <div class="section-header">
-    <div class="section-tag">Features</div>
-    <h2>Everything you need to sell on-chain</h2>
-    <p>From storefronts to settlement — the platform handles the infrastructure so you can focus on your products.</p>
-  </div>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">⚡</div>
-      <h3>Instant deployment</h3>
-      <p>Spin up a fully branded marketplace in under two minutes — no smart contract expertise required.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔒</div>
-      <h3>Non-custodial payments</h3>
-      <p>Buyers pay directly to your wallet. The platform never holds your funds — you stay in control at all times.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌐</div>
-      <h3>Custom storefronts</h3>
-      <p>Your own URL, branding, and product listings. Customers see your brand — not ours.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📊</div>
-      <h3>Live dashboard</h3>
-      <p>Track sales, monitor transactions, and manage your inventory from a single clean interface.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔑</div>
-      <h3>Wallet integration</h3>
-      <p>Built-in wallet generation and management. Each account gets a secure, isolated wallet out of the box.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🛡️</div>
-      <h3>Fraud-proof by design</h3>
-      <p>On-chain transactions are immutable and publicly verifiable — no chargebacks, no disputes.</p>
+        <div class="battle-question">"What has keys but can't open locks?"</div>
+        <button class="battle-btn">View Battle</button>
+      </div>
+      <div class="battle-card live">
+        <div class="battle-top">
+          <div class="battle-status">🔥 Live</div>
+          <div class="battle-pot-top">1.0 SOL</div>
+        </div>
+        <div class="battle-players">
+          <div class="battle-spot">
+            <div class="battle-circle">C</div>
+            <div class="battle-username">charlie</div>
+          </div>
+          <div class="battle-vs-inline">VS</div>
+          <div class="battle-spot">
+            <div class="battle-circle">D</div>
+            <div class="battle-username">diana</div>
+          </div>
+        </div>
+        <div class="battle-question">"Explain quantum computing in simple terms"</div>
+        <button class="battle-btn">Watch Live</button>
+      </div>
     </div>
   </div>
 </section>
@@ -772,23 +757,29 @@
   <div class="how-inner">
     <div class="section-header">
       <div class="section-tag">How it works</div>
-      <h2>Live in three steps</h2>
+      <h2>Four steps to the arena</h2>
+      <p>Simple, fair, on-chain. No house edge — just two AIs going head to head.</p>
     </div>
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
-        <h3>Create your account</h3>
-        <p>Sign up and a wallet is automatically provisioned for you — no seed phrase juggling needed.</p>
+        <h3>Connect your wallet</h3>
+        <p>Sign in with Phantom. Your wallet is your identity — no passwords, no email.</p>
       </div>
       <div class="step">
         <div class="step-num">02</div>
-        <h3>Build your marketplace</h3>
-        <p>Add your logo, list your products, set prices in any supported token, and publish.</p>
+        <h3>Create or join a battle</h3>
+        <p>Set your stake (e.g. 0.5 SOL). Your opponent matches it exactly. The pot is locked on-chain.</p>
       </div>
       <div class="step">
         <div class="step-num">03</div>
-        <h3>Start selling</h3>
-        <p>Share your storefront link. Buyers pay on-chain and funds arrive directly in your wallet.</p>
+        <h3>Both AIs answer</h3>
+        <p>A challenge question is issued. Each player's AI generates its best answer independently.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3>AI judge decides</h3>
+        <p>An impartial AI model evaluates both answers and picks a winner. The full pot goes to the winner instantly.</p>
       </div>
     </div>
   </div>
@@ -796,25 +787,34 @@
 
 <!-- CTA -->
 <section class="cta-section">
-  <h2>Ready to launch<br>your marketplace?</h2>
-  <p>Join hundreds of sellers already trading on the platform.</p>
-  <a href="/account/register" class="btn btn-hero-primary">Create your store — it's free</a>
+  <h2>Think your AI can win?</h2>
+  <p>Jump in, stake your SOL, and prove it in the arena.</p>
+  <a href="/account/register" class="btn-cta">⚔️ Start your first battle</a>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <a href="/" class="nav-logo" style="font-size:.85rem;">
-    <img src="/service_apps/images/logo.svg" alt="Django Base logo" style="width:18px;height:18px;filter:invert(1);">
-    Django Base
+  <a href="/" class="nav-logo" style="font-size:.88rem;">
+    <span class="ai">AI</span><span class="clash">clash</span><span style="color:var(--red);font-weight:400">.fun</span>
   </a>
   <div class="footer-links">
     <a href="#">Terms</a>
     <a href="#">Privacy</a>
-    <a href="#">Docs</a>
     <a href="#">Contact</a>
   </div>
-  <span>&copy; 2026 Django Base</span>
+  <span>&copy; 2026 AIclash.fun</span>
 </footer>
 
+<script>
+  function copyCA() {
+    const addr = document.getElementById('caAddr').textContent.trim();
+    navigator.clipboard.writeText(addr).then(() => {
+      const btn = document.querySelector('.ca-copy');
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
 </body>
 </html>

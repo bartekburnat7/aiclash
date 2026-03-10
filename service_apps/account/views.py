@@ -8,8 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
-from nacl.signing import VerifyKey
-from nacl.exceptions import BadSignatureError
+
 
 from .models import CustomUser
 
@@ -18,17 +17,20 @@ from .models import CustomUser
 
 @require_GET
 def wallet_nonce(request):
+
     pubkey = request.GET.get('pubkey', '').strip()
     if not pubkey:
         return JsonResponse({'error': 'pubkey required'}, status=400)
     nonce = secrets.token_hex(32)
     request.session['wallet_nonce'] = nonce
     request.session['wallet_nonce_pubkey'] = pubkey
-    message = f'Sign in to Django Base\nNonce: {nonce}'
+    message = f'Sign in to AIclash.fun\nNonce: {nonce}'
     return JsonResponse({'nonce': nonce, 'message': message})
 
 
 def _verify_phantom_signature(pubkey_b58: str, message: str, signature_b64: str) -> bool:
+    from nacl.signing import VerifyKey
+    from nacl.exceptions import BadSignatureError
     try:
         verify_key = VerifyKey(base58.b58decode(pubkey_b58))
         sig_bytes = base64.b64decode(signature_b64)
@@ -42,7 +44,7 @@ def _verify_phantom_signature(pubkey_b58: str, message: str, signature_b64: str)
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('home')
 
     error = None
 
@@ -51,7 +53,7 @@ def login_view(request):
         signature = request.POST.get('signature', '').strip()
         nonce = request.session.get('wallet_nonce', '')
         nonce_pubkey = request.session.get('wallet_nonce_pubkey', '')
-        message = f'Sign in to Django Base\nNonce: {nonce}'
+        message = f'Sign in to AIclash.fun\nNonce: {nonce}'
 
         if not pubkey or not signature or not nonce:
             error = 'Wallet connection incomplete. Please try again.'
@@ -65,7 +67,7 @@ def login_view(request):
             try:
                 user = CustomUser.objects.get(public_wallet_address=pubkey)
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                return redirect(request.GET.get('next') or 'dashboard')
+                return redirect(request.GET.get('next') or 'home    ')
             except CustomUser.DoesNotExist:
                 error = 'No account found for this wallet. Please register first.'
 
@@ -76,7 +78,7 @@ def login_view(request):
 
 def register(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('home')
 
     error = None
 
@@ -86,7 +88,7 @@ def register(request):
         username = request.POST.get('username', '').strip()
         nonce = request.session.get('wallet_nonce', '')
         nonce_pubkey = request.session.get('wallet_nonce_pubkey', '')
-        message = f'Sign in to Django Base\nNonce: {nonce}'
+        message = f'Sign in to AIclash.fun\nNonce: {nonce}'
 
         if not pubkey or not signature or not nonce:
             error = 'Wallet connection incomplete. Please try again.'
@@ -109,7 +111,7 @@ def register(request):
             request.session.pop('wallet_nonce_pubkey', None)
             user = CustomUser.objects.create_user(username=username, public_wallet_address=pubkey)
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('dashboard')
+            return redirect('home')
 
     return render(request, 'service_apps/account/templates/register.html', {'error': error})
 
@@ -118,7 +120,5 @@ def register(request):
 
 @login_required(login_url='/account/login')
 def logout_view(request):
-    if request.method == 'POST':
-        logout(request)
-        return redirect('account:login')
-    return render(request, 'service_apps/account/templates/logout.html')
+    logout(request)
+    return redirect('home')

@@ -2,49 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231a1a2e'/><text x='16' y='24' font-size='22' font-weight='bold' text-anchor='middle' fill='%236c63ff' font-family='Arial'>#</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23e63030'/%3E%3Ctext x='50' y='68' font-size='62' font-weight='900' text-anchor='middle' fill='white' font-family='Arial'%3EAI%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Log in — Django Base</title>
+  <title>Log In - AIclash.fun</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg:#080808;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border2:#2a2a2a;
-      --purple:#ab9ff2;--purple-dim:rgba(171,159,242,.12);--purple-glow:rgba(171,159,242,.25);
-      --text:#f2f2f2;--muted:#555;--sub:#888;
-      --error-bg:rgba(255,80,80,.08);--error-border:rgba(255,80,80,.3);--error-text:#ff8080;
+      --bg:         #ffffff;
+      --surface:    #f8f8f8;
+      --surface2:   #f0f0f0;
+      --border:     #e8e8e8;
+      --border2:    #d8d8d8;
+      --red:        #e63030;
+      --red-dark:   #c42020;
+      --red-dim:    rgba(230,48,48,.08);
+      --red-glow:   rgba(230,48,48,.22);
+      --text:       #111111;
+      --muted:      #999;
+      --sub:        #666;
+      --error-bg:   rgba(255,80,80,.08);
+      --error-border: rgba(255,80,80,.3);
+      --error-text: #ff8080;
     }
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
-    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(8,8,8,.9);backdrop-filter:blur(12px);}
-    .nav-logo{font-size:.95rem;font-weight:700;letter-spacing:-.02em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:.5rem;}
-    .nav-logo img{width:22px;height:22px;filter:invert(1);display:block;}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,255,255,.9);backdrop-filter:blur(12px);}
+    .nav-logo{font-size:1.1rem;font-weight:700;letter-spacing:-.02em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:.5rem;}
     .nav-right{font-size:.85rem;color:var(--sub);}
-    .nav-right a{color:var(--purple);text-decoration:none;font-weight:500;margin-left:.3rem;}
+    .nav-right a{color:var(--red);text-decoration:none;font-weight:500;margin-left:.3rem;}
     .nav-right a:hover{text-decoration:underline;}
     main{flex:1;display:flex;align-items:center;justify-content:center;padding:5.5rem 1.5rem 3rem;position:relative;overflow:hidden;}
-    main::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(171,159,242,.06) 0%,transparent 65%);pointer-events:none;}
+    main::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(230,48,48,.06) 0%,transparent 65%);pointer-events:none;}
     .card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem 2.25rem;}
     .card-logo{display:flex;align-items:center;justify-content:center;margin-bottom:1.75rem;}
-    .card-logo img{width:36px;height:36px;filter:invert(1);}
     .card h1{font-size:1.45rem;font-weight:700;letter-spacing:-.03em;text-align:center;margin-bottom:.45rem;}
     .card-sub{font-size:.85rem;color:var(--sub);text-align:center;margin-bottom:2rem;}
-    .btn-phantom{width:100%;padding:.82rem;border-radius:10px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--purple);color:#1a0f3a;transition:background .15s,transform .1s,box-shadow .15s;}
-    .btn-phantom:hover{background:#c5bbf7;transform:translateY(-1px);box-shadow:0 6px 20px var(--purple-glow);}
+    .btn-phantom{width:100%;padding:.82rem;border-radius:10px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--red);color:#fff;transition:background .15s,transform .1s,box-shadow .15s;}
+    .btn-phantom:hover{background:#c42020;transform:translateY(-1px);box-shadow:0 6px 20px var(--red-glow);}
     .btn-phantom:active{transform:translateY(0);box-shadow:none;}
     .btn-phantom:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
     .phantom-icon{width:22px;height:22px;flex-shrink:0;}
     .status-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.8rem 1rem;font-size:.83rem;color:var(--sub);margin-bottom:1.2rem;display:flex;align-items:center;gap:8px;min-height:44px;}
     .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;}
     .dot.connected{background:#86d99f;box-shadow:0 0 6px rgba(134,217,159,.5);}
-    .dot.loading{background:var(--purple);animation:pulse 1s infinite;}
+    .dot.loading{background:var(--red);animation:pulse 1s infinite;}
     @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
     .error-box{background:var(--error-bg);border:1px solid var(--error-border);color:var(--error-text);border-radius:8px;padding:.55rem .85rem;font-size:.82rem;margin-bottom:1rem;}
     .no-phantom-box{background:rgba(255,180,50,.06);border:1px solid rgba(255,180,50,.2);color:#ffd060;border-radius:8px;padding:.7rem 1rem;font-size:.82rem;line-height:1.5;display:none;margin-bottom:1rem;}
     .no-phantom-box a{color:#ffd060;font-weight:600;}
     .card-footer-link{text-align:center;font-size:.83rem;color:var(--sub);margin-top:1.4rem;}
-    .card-footer-link a{color:var(--purple);text-decoration:none;font-weight:500;}
+    .card-footer-link a{color:var(--red);text-decoration:none;font-weight:500;}
     .card-footer-link a:hover{text-decoration:underline;}
     footer{border-top:1px solid var(--border);padding:1.25rem 1.5rem;text-align:center;font-size:.78rem;color:var(--muted);}
   </style>
@@ -52,14 +61,12 @@
 <body>
 <nav>
   <a href="/" class="nav-logo">
-    <img src="/service_apps/images/logo.svg" alt="Django Base logo">
-    Django Base
+    AIclash.fun
   </a>
   <div class="nav-right">No account? <a href="{% url 'account:register' %}">Sign up free</a></div>
 </nav>
 <main>
   <div class="card">
-    <div class="card-logo"><img src="/service_apps/images/logo.svg" alt="Django Base"></div>
     <h1>Welcome back</h1>
     <p class="card-sub">Sign in with your Phantom wallet</p>
     {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
@@ -76,20 +83,13 @@
       <input type="hidden" name="signature" id="signatureInput">
     </form>
     <button class="btn-phantom" id="connectBtn" type="button">
-      <svg class="phantom-icon" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="128" height="128" rx="32" fill="#AB9FF2"/>
-        <ellipse cx="64" cy="64" rx="46" ry="46" fill="#1A0F3A"/>
-        <path d="M85 55c0 11-9 20-20 20H49V55c0-11 9-20 20-20s16 9 16 20z" fill="#AB9FF2"/>
-        <circle cx="89" cy="58" r="7" fill="#AB9FF2"/>
-        <circle cx="39" cy="58" r="7" fill="#AB9FF2"/>
-        <path d="M49 75s0 14-10 14-10-7-10-7" stroke="#AB9FF2" stroke-width="4" stroke-linecap="round"/>
-      </svg>
+
       Connect Phantom &amp; Sign In
     </button>
     <p class="card-footer-link">Don't have an account? <a href="{% url 'account:register' %}">Create one</a></p>
   </div>
 </main>
-<footer>&copy; 2026 Django Base</footer>
+<footer>&copy; 2026 AIclash.fun</footer>
 <script>
   const NONCE_URL = '{% url "account:wallet-nonce" %}';
   const btn = document.getElementById('connectBtn');
@@ -106,18 +106,18 @@
     const provider = window.phantom?.solana ?? window.solana;
     if (!provider?.isPhantom) { noPhantom.style.display = 'block'; return; }
     btn.disabled = true;
-    setStatus('loading', 'Connecting to Phantom…');
+    setStatus('loading', 'Connecting to Phantom...');
     try {
       const { publicKey } = await provider.connect();
       const pubkey = publicKey.toString();
-      setStatus('loading', 'Requesting challenge…');
+      setStatus('loading', 'Requesting challenge...');
       const r = await fetch(NONCE_URL + '?pubkey=' + encodeURIComponent(pubkey));
       const { message, error } = await r.json();
       if (error) throw new Error(error);
-      setStatus('loading', 'Approve signature in Phantom…');
+      setStatus('loading', 'Approve signature in Phantom...');
       const { signature } = await provider.signMessage(new TextEncoder().encode(message), 'utf8');
       const sigB64 = btoa(String.fromCharCode(...signature));
-      setStatus('connected', 'Signed! Logging in…');
+      setStatus('connected', 'Signed! Logging in...');
       document.getElementById('pubkeyInput').value = pubkey;
       document.getElementById('signatureInput').value = sigB64;
       document.getElementById('loginForm').submit();
