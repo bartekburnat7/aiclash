@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23e63030'/%3E%3Ctext x='50' y='68' font-size='62' font-weight='900' text-anchor='middle' fill='white' font-family='Arial'%3EAI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battles — AIclash.fun</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f8f8f8;
+      --surface2: #f0f0f0;
+      --border:   #e8e8e8;
+      --border2:  #d8d8d8;
+      --red:      #e63030;
+      --red-dark: #c42020;
+      --red-dim:  rgba(230,48,48,.08);
+      --red-glow: rgba(230,48,48,.22);
+      --text:     #111111;
+      --muted:    #999;
+      --sub:      #666;
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 900; letter-spacing: -.04em; color: var(--text); text-decoration: none; }
+    .nav-logo .ai { color: var(--red); }
+    .nav-links { display: flex; align-items: center; gap: .25rem; list-style: none; }
+    .nav-links a { color: var(--sub); text-decoration: none; font-size: .875rem; font-weight: 500; padding: .4rem .85rem; border-radius: 6px; transition: color .15s, background .15s; }
+    .nav-links a:hover { color: var(--text); background: var(--surface2); }
+    .nav-actions { display: flex; gap: .6rem; align-items: center; }
+    .nav-user { display: flex; align-items: center; gap: .65rem; }
+    .nav-user-name { font-size: .875rem; font-weight: 600; color: var(--text); }
+    .nav-user-wallet { font-size: .78rem; color: var(--sub); font-family: 'Courier New', monospace; background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px; padding: .2rem .55rem; }
+    .btn-ghost { display: inline-flex; align-items: center; padding: .45rem 1.1rem; border: 1px solid var(--border2); border-radius: 8px; background: transparent; color: var(--sub); font-family: inherit; font-weight: 500; font-size: .875rem; text-decoration: none; cursor: pointer; transition: all .15s; }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+    .btn-primary { display: inline-flex; align-items: center; padding: .45rem 1.2rem; border-radius: 8px; border: none; background: var(--red); color: #fff; font-family: inherit; font-weight: 600; font-size: .875rem; text-decoration: none; cursor: pointer; transition: all .15s; }
+    .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 4px 16px var(--red-glow); }
+
+    /* PAGE */
+    .page {
+      padding: 6rem 1.5rem 5rem;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -.04em;
+    }
+
+    /* FILTER TABS */
+    .filter-tabs {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .filter-tab {
+      padding: .4rem 1rem;
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--sub);
+      background: transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .15s;
+    }
+    .filter-tab:hover, .filter-tab.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+    /* GRID */
+    .battles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .battle-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: .8rem;
+      background: #fff;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .battle-card:hover { border-color: rgba(230,48,48,.3); box-shadow: 0 4px 20px rgba(230,48,48,.07); }
+
+    .card-top { display: flex; align-items: center; justify-content: space-between; }
+
+    .status-badge {
+      font-size: .72rem; font-weight: 700;
+      padding: .22rem .6rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .status-waiting  { background: rgba(255,180,50,.1);  color: #e09000; }
+    .status-pending  { background: rgba(100,100,230,.1); color: #4444cc; }
+    .status-judging  { background: rgba(230,48,48,.08);  color: var(--red); }
+    .status-finished { background: rgba(60,180,60,.1);   color: #2a9a2a; }
+
+    .stake { font-size: .95rem; font-weight: 700; color: var(--red); }
+
+    .players {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+    }
+    .player-spot { display: flex; flex-direction: column; align-items: center; gap: .35rem; flex: 1; }
+    .player-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--red);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: .8rem;
+    }
+    .player-avatar.open { background: var(--surface2); color: var(--sub); }
+    .player-avatar.winner { background: #2a9a2a; }
+    .player-name { font-size: .75rem; font-weight: 600; color: var(--text); text-align: center; }
+    .player-name.open { color: var(--sub); }
+    .player-name.winner { color: #2a9a2a; font-weight: 700; }
+    .vs-label { font-size: .7rem; font-weight: 900; color: var(--red); flex-shrink: 0; }
+
+    .topic-text {
+      font-size: .82rem;
+      color: var(--sub);
+      line-height: 1.55;
+      border-top: 1px solid var(--border);
+      padding-top: .75rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-action {
+      padding: .55rem 1rem;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background .15s;
+      align-self: flex-start;
+    }
+    .card-action:hover { background: var(--red-dark); }
+    .card-action.ghost { background: transparent; border: 1px solid var(--border2); color: var(--sub); }
+    .card-action.ghost:hover { background: var(--surface2); color: var(--text); }
+
+    /* EMPTY */
+    .empty {
+      text-align: center;
+      padding: 5rem 1.5rem;
+      color: var(--sub);
+    }
+    .empty p { margin-bottom: 1.5rem; font-size: .95rem; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--muted); font-size: .8rem; }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color .15s; }
+    .footer-links a:hover { color: var(--sub); }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><span class="ai">AIclash.fun</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/battles/" style="color:var(--text);">Battles</a></li>
+  </ul>
+  <div class="nav-actions">
+    {% if request.user.is_authenticated %}
+      <div class="nav-user">
+        <span class="nav-user-wallet">{{ request.user.public_wallet_address|slice:":6" }}…{{ request.user.public_wallet_address|slice:"-4:" }}</span>
+        <span class="nav-user-name">{{ request.user.username }}</span>
+        <a href="/account/logout" class="btn-ghost" style="font-size:.82rem;">Log out</a>
+      </div>
+    {% else %}
+      <a href="/account/login" class="btn-ghost">Log in</a>
+      <a href="/account/register" class="btn-primary">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <h1>⚔️ AI Battles</h1>
+    {% if request.user.is_authenticated %}
+      <a href="/battles/create/" class="btn-primary">+ New Battle</a>
+    {% else %}
+      <a href="/account/login" class="btn-primary">Log in to battle</a>
+    {% endif %}
+  </div>
+
+  <div class="filter-tabs">
+    <a href="?status=" class="filter-tab {% if not request.GET.status %}active{% endif %}">All</a>
+    <a href="?status=waiting"  class="filter-tab {% if request.GET.status == 'waiting'  %}active{% endif %}">⏳ Waiting</a>
+    <a href="?status=pending"  class="filter-tab {% if request.GET.status == 'pending'  %}active{% endif %}">🔵 In Progress</a>
+    <a href="?status=judging"  class="filter-tab {% if request.GET.status == 'judging'  %}active{% endif %}">🔥 Judging</a>
+    <a href="?status=finished" class="filter-tab {% if request.GET.status == 'finished' %}active{% endif %}">✅ Finished</a>
+  </div>
+
+  {% with filtered=battles %}
+  {% if battles %}
+  <div class="battles-grid">
+    {% for battle in battles %}
+      {% if not request.GET.status or battle.status == request.GET.status %}
+      <a href="/battles/{{ battle.pk }}/" class="battle-card">
+        <div class="card-top">
+          <span class="status-badge status-{{ battle.status }}">
+            {% if battle.status == 'waiting' %}⏳ Waiting
+            {% elif battle.status == 'pending' %}🔵 In Progress
+            {% elif battle.status == 'judging' %}🔥 Judging
+            {% else %}✅ Finished{% endif %}
+          </span>
+          <span class="stake">{{ battle.stake }} SOL</span>
+        </div>
+
+        <div class="players">
+          <div class="player-spot">
+            {% if battle.player_a %}
+              <div class="player-avatar {% if battle.winner == battle.player_a %}winner{% endif %}">
+                {{ battle.player_a.username|slice:":1"|upper }}
+              </div>
+              <div class="player-name {% if battle.winner == battle.player_a %}winner{% endif %}">
+                {{ battle.player_a.username }}
+                {% if battle.winner == battle.player_a %}👑{% endif %}
+              </div>
+            {% else %}
+              <div class="player-avatar open">?</div>
+              <div class="player-name open">Open</div>
+            {% endif %}
+          </div>
+          <div class="vs-label">VS</div>
+          <div class="player-spot">
+            {% if battle.player_b %}
+              <div class="player-avatar {% if battle.winner == battle.player_b %}winner{% endif %}">
+                {{ battle.player_b.username|slice:":1"|upper }}
+              </div>
+              <div class="player-name {% if battle.winner == battle.player_b %}winner{% endif %}">
+                {{ battle.player_b.username }}
+                {% if battle.winner == battle.player_b %}👑{% endif %}
+              </div>
+            {% else %}
+              <div class="player-avatar open">?</div>
+              <div class="player-name open">Open</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="topic-text">"{{ battle.topic }}"</div>
+
+        {% if battle.status == 'waiting' and request.user.is_authenticated and battle.player_a != request.user and battle.player_b != request.user %}
+          <span class="card-action">Join Battle ⚡</span>
+        {% elif battle.status == 'finished' %}
+          <span class="card-action ghost">View Results →</span>
+        {% else %}
+          <span class="card-action ghost">View →</span>
+        {% endif %}
+      </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <p>No battles yet. Be the first to start one!</p>
+    {% if request.user.is_authenticated %}
+      <a href="/battles/create/" class="btn-primary">⚔️ Create the first battle</a>
+    {% else %}
+      <a href="/account/register" class="btn-primary">⚔️ Register &amp; battle</a>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endwith %}
+</div>
+
+<footer>
+  <a href="/" class="nav-logo" style="font-size:.88rem;"><span class="ai">AI</span><span>clash</span><span style="color:var(--red);font-weight:400">.fun</span></a>
+  <div class="footer-links">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+    <a href="#">Contact</a>
+  </div>
+  <span>&copy; 2026 AIclash.fun</span>
+</footer>
+
+</body>
+</html>

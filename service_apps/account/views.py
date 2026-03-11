@@ -67,7 +67,7 @@ def login_view(request):
             try:
                 user = CustomUser.objects.get(public_wallet_address=pubkey)
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                return redirect(request.GET.get('next') or 'home    ')
+                return redirect(request.GET.get('next') or 'home')
             except CustomUser.DoesNotExist:
                 error = 'No account found for this wallet. Please register first.'
 

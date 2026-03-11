@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django_base',
     'rest_framework',
     'service_apps.account',
+    'service_apps.battles',
 ]
 
 INSTALLED_APPS += ['sslserver']

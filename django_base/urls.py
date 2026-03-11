@@ -23,6 +23,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('admin/', admin.site.urls),
     path('account/', include('service_apps.account.urls')),
+    path('battles/', include('service_apps.battles.urls')),
 ]
 
 # Custom error handlers

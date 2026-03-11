@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23e63030'/%3E%3Ctext x='50' y='68' font-size='62' font-weight='900' text-anchor='middle' fill='white' font-family='Arial'%3EAI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Battle — AIclash.fun</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f8f8f8;
+      --surface2: #f0f0f0;
+      --border:   #e8e8e8;
+      --border2:  #d8d8d8;
+      --red:      #e63030;
+      --red-dark: #c42020;
+      --red-dim:  rgba(230,48,48,.08);
+      --red-glow: rgba(230,48,48,.22);
+      --text:     #111111;
+      --muted:    #999;
+      --sub:      #666;
+    }
+
+    body { font-family: "Inter", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 900; letter-spacing: -.04em; color: var(--text); text-decoration: none; }
+    .nav-logo .ai { color: var(--red); }
+    .nav-links { display: flex; align-items: center; gap: .25rem; list-style: none; }
+    .nav-links a { color: var(--sub); text-decoration: none; font-size: .875rem; font-weight: 500; padding: .4rem .85rem; border-radius: 6px; transition: color .15s, background .15s; }
+    .nav-links a:hover { color: var(--text); background: var(--surface2); }
+    .nav-actions { display: flex; gap: .6rem; align-items: center; }
+    .nav-user { display: flex; align-items: center; gap: .65rem; }
+    .nav-user-name { font-size: .875rem; font-weight: 600; color: var(--text); }
+    .nav-user-wallet { font-size: .78rem; color: var(--sub); font-family: "Courier New", monospace; background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px; padding: .2rem .55rem; }
+    .btn-ghost { display: inline-flex; align-items: center; padding: .45rem 1.1rem; border: 1px solid var(--border2); border-radius: 8px; background: transparent; color: var(--sub); font-family: inherit; font-weight: 500; font-size: .875rem; text-decoration: none; cursor: pointer; transition: all .15s; }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+    .btn-primary { display: inline-flex; align-items: center; padding: .45rem 1.2rem; border-radius: 8px; border: none; background: var(--red); color: #fff; font-family: inherit; font-weight: 600; font-size: .875rem; text-decoration: none; cursor: pointer; transition: all .15s; }
+    .btn-primary:hover { background: var(--red-dark); }
+
+    .page { padding: 6rem 1.5rem 5rem; max-width: 640px; margin: 0 auto; }
+
+    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: var(--sub); text-decoration: none; font-size: .875rem; font-weight: 500; margin-bottom: 2rem; transition: color .15s; }
+    .back-link:hover { color: var(--text); }
+
+    .page-title { font-size: clamp(1.6rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.04em; margin-bottom: .5rem; }
+    .page-sub { color: var(--sub); font-size: .9rem; line-height: 1.6; margin-bottom: 2.5rem; }
+
+    .steps-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; }
+    .step-dot { display: flex; flex-direction: column; align-items: center; gap: .35rem; flex: 1; }
+    .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; border: 2px solid var(--border2); background: var(--bg); color: var(--muted); transition: all .25s; }
+    .step-circle.active { background: var(--red); border-color: var(--red); color: #fff; }
+    .step-circle.done { background: #2a9a2a; border-color: #2a9a2a; color: #fff; }
+    .step-label { font-size: .68rem; font-weight: 600; color: var(--muted); text-align: center; white-space: nowrap; }
+    .step-label.active { color: var(--red); }
+    .step-label.done { color: #2a9a2a; }
+    .step-connector { flex: 1; height: 2px; background: var(--border2); margin-bottom: 1.2rem; transition: background .25s; }
+    .step-connector.done { background: #2a9a2a; }
+
+    .form-card { border: 1px solid var(--border); border-radius: 16px; padding: 2rem; background: #fff; }
+
+    .form-group { margin-bottom: 1.4rem; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label { display: block; font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: .5rem; letter-spacing: .01em; }
+    .label-hint { font-weight: 400; color: var(--sub); margin-left: .4rem; }
+
+    select,
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: .75rem 1rem;
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: .9rem;
+      color: var(--text);
+      background: var(--surface);
+      transition: border-color .15s, box-shadow .15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%23999' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    select:focus, input:focus, textarea:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); background: #fff; }
+    textarea { min-height: 120px; resize: vertical; }
+    .char-hint { font-size: .72rem; color: var(--muted); margin-top: .35rem; }
+
+    .generate-row { display: flex; gap: .6rem; align-items: stretch; }
+    .generate-row select { flex: 1; }
+
+    .generate-btn {
+      flex-shrink: 0;
+      padding: 0 1.2rem;
+      background: var(--red); color: #fff; border: none; border-radius: 10px;
+      font-family: inherit; font-size: .875rem; font-weight: 700;
+      cursor: pointer; transition: all .18s;
+      white-space: nowrap;
+      display: flex; align-items: center; gap: .45rem;
+    }
+    .generate-btn:hover { background: var(--red-dark); }
+    .generate-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .question-preview {
+      margin-top: .75rem;
+      padding: 1rem 1.1rem;
+      background: var(--red-dim);
+      border: 1px solid rgba(230,48,48,.2);
+      border-radius: 10px;
+      display: none;
+    }
+    .question-preview.visible { display: block; }
+    .question-preview-label { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--red); margin-bottom: .4rem; }
+    .question-preview-text { font-size: .95rem; font-weight: 600; color: var(--text); line-height: 1.5; }
+    .regen-link { font-size: .75rem; color: var(--red); font-weight: 600; cursor: pointer; margin-top: .5rem; display: inline-block; text-decoration: underline; text-underline-offset: 2px; }
+    .regen-link:hover { color: var(--red-dark); }
+
+    .prompt-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: none; }
+    .prompt-section.visible { display: block; }
+
+    .error-box { margin-bottom: 1.5rem; padding: .85rem 1.1rem; background: rgba(230,48,48,.06); border: 1px solid rgba(230,48,48,.25); border-radius: 10px; color: var(--red); font-size: .875rem; font-weight: 500; }
+
+    .submit-btn { width: 100%; padding: .85rem; background: var(--red); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all .18s; margin-top: 1.2rem; }
+    .submit-btn:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 8px 24px var(--red-glow); }
+
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .info-panel { margin-top: 1.5rem; padding: 1rem 1.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+    .info-panel p { font-size: .82rem; color: var(--sub); line-height: 1.65; }
+    .info-panel strong { color: var(--text); }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--muted); font-size: .8rem; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { color: var(--muted); text-decoration: none; }
+    .footer-links a:hover { color: var(--sub); }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .generate-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><span class="ai">AIclash.fun</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/battles/">Battles</a></li>
+  </ul>
+  <div class="nav-actions">
+    {% if request.user.is_authenticated %}
+      <div class="nav-user">
+        <span class="nav-user-wallet">{{ request.user.public_wallet_address|slice:":6" }}&hellip;{{ request.user.public_wallet_address|slice:"-4:" }}</span>
+        <span class="nav-user-name">{{ request.user.username }}</span>
+        <a href="/account/logout" class="btn-ghost" style="font-size:.82rem;">Log out</a>
+      </div>
+    {% else %}
+      <a href="/account/login" class="btn-ghost">Log in</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="page">
+  <a href="/battles/" class="back-link">&larr; Back to battles</a>
+
+  <h1 class="page-title">&#9876; Create a Battle</h1>
+  <p class="page-sub">Pick a topic category and let AI generate your battle question. You'll set your AI prompt once an opponent joins.</p>
+
+  <div class="steps-indicator">
+    <div class="step-dot">
+      <div class="step-circle" id="step1-circle">1</div>
+      <div class="step-label" id="step1-label">Choose topic</div>
+    </div>
+    <div class="step-connector" id="conn1"></div>
+    <div class="step-dot">
+      <div class="step-circle" id="step2-circle">2</div>
+      <div class="step-label" id="step2-label">Set stake</div>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="error-box">{{ error }}</div>
+  {% endif %}
+
+  <div class="form-card">
+    <form method="POST" action="/battles/create/" id="battle-form">
+      {% csrf_token %}
+
+      <input type="hidden" name="topic" id="topic-hidden" value="{{ post_topic|default:'' }}" />
+
+      <div class="form-group">
+        <label for="category-select">Topic Category</label>
+        <div class="generate-row">
+          <select id="category-select" name="category">
+            <option value="" disabled {% if not post_category %}selected{% endif %}>&#8212; Select a category &#8212;</option>
+            {% for cat in categories %}
+              <option value="{{ cat }}" {% if post_category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+          <button type="button" class="generate-btn" id="generate-btn" disabled>
+            <span class="spinner" id="gen-spinner"></span>
+            <span id="gen-btn-text">&#10024; Generate</span>
+          </button>
+        </div>
+
+        <div class="question-preview {% if post_topic %}visible{% endif %}" id="question-preview">
+          <div class="question-preview-label">&#9876; Battle Question</div>
+          <div class="question-preview-text" id="question-text">{{ post_topic|default:'' }}</div>
+          <span class="regen-link" id="regen-link">&#8635; Regenerate question</span>
+        </div>
+
+        <div class="generate-error" id="generate-error" style="display:none;margin-top:.75rem;padding:.8rem 1rem;background:rgba(230,48,48,.06);border:1px solid rgba(230,48,48,.25);border-radius:10px;color:var(--red);font-size:.82rem;font-weight:500;"></div>
+      </div>
+
+      <div class="prompt-section {% if post_topic %}visible{% endif %}" id="prompt-section">
+        <div class="form-group">
+          <label for="stake">Stake <span class="label-hint">&#8212; SOL amount (opponent must match)</span></label>
+          <input type="number" id="stake" name="stake" min="0.01" step="0.01"
+                 placeholder="0.1"
+                 value="{{ post_stake|default:'0.1' }}" required />
+        </div>
+
+        <button type="submit" class="submit-btn">&#9876; Create Battle</button>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="info-panel">
+    <p>
+      <strong>How it works:</strong> Create the battle with a topic and stake.
+      Once an opponent joins, both of you submit your AI prompts &mdash; then the AI judge decides who wins.
+      Prompts stay private until judging is done. <strong>Max 2 active battles per user.</strong>
+    </p>
+  </div>
+</div>
+
+<footer>
+  <a href="/" class="nav-logo" style="font-size:.88rem;"><span class="ai">AI</span><span>clash</span><span style="color:var(--red);font-weight:400">.fun</span></a>
+  <div class="footer-links">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+  </div>
+  <span>&copy; 2026 AIclash.fun</span>
+</footer>
+
+<script>
+  const csrfToken = (document.cookie.split('; ').find(r => r.startsWith('csrftoken=')) || '').split('=')[1]
+    || '{{ csrf_token }}';
+
+  const categorySelect  = document.getElementById('category-select');
+  const generateBtn     = document.getElementById('generate-btn');
+  const genBtnText      = document.getElementById('gen-btn-text');
+  const genSpinner      = document.getElementById('gen-spinner');
+  const questionPreview = document.getElementById('question-preview');
+  const questionText    = document.getElementById('question-text');
+  const topicHidden     = document.getElementById('topic-hidden');
+  const promptSection   = document.getElementById('prompt-section');
+  const regenLink       = document.getElementById('regen-link');
+
+  const s1c   = document.getElementById('step1-circle');
+  const s1l   = document.getElementById('step1-label');
+  const conn1 = document.getElementById('conn1');
+  const s2c   = document.getElementById('step2-circle');
+  const s2l   = document.getElementById('step2-label');
+  const generateError = document.getElementById('generate-error');
+
+  function setStepState(hasQuestion) {
+    if (hasQuestion) {
+      s1c.classList.remove('active'); s1c.classList.add('done');
+      s1l.classList.remove('active'); s1l.classList.add('done');
+      conn1.classList.add('done');
+      s2c.classList.add('active');
+      s2l.classList.add('active');
+    } else {
+      s1c.classList.add('active'); s1c.classList.remove('done');
+      s1l.classList.add('active'); s1l.classList.remove('done');
+      conn1.classList.remove('done');
+      s2c.classList.remove('active', 'done');
+      s2l.classList.remove('active', 'done');
+    }
+  }
+
+  // Initialise
+  categorySelect.addEventListener('change', () => { generateBtn.disabled = !categorySelect.value; });
+  if (categorySelect.value) generateBtn.disabled = false;
+  setStepState(!!topicHidden.value);
+
+  async function generateQuestion() {
+    const category = categorySelect.value;
+    if (!category) return;
+
+    generateBtn.disabled = true;
+    genSpinner.style.display = 'block';
+    genBtnText.textContent = 'Generating...';
+
+    try {
+      const resp = await fetch('/battles/generate-question/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({ category }),
+      });
+      const data = await resp.json();
+      if (data.question) {
+        generateError.style.display = 'none';
+        questionText.textContent = data.question;
+        topicHidden.value = data.question;
+        questionPreview.classList.add('visible');
+        promptSection.classList.add('visible');
+        setStepState(true);
+      } else {
+        generateError.textContent = data.error || 'Failed to generate. Please try again.';
+        generateError.style.display = 'block';
+      }
+    } catch (e) {
+      generateError.textContent = 'Network error. Please check your connection and try again.';
+      generateError.style.display = 'block';
+    } finally {
+      generateBtn.disabled = false;
+      genSpinner.style.display = 'none';
+      genBtnText.textContent = '&#10024; Generate';
+    }
+  }
+
+  generateBtn.addEventListener('click', generateQuestion);
+  regenLink.addEventListener('click', generateQuestion);
+</script>
+
+</body>
+</html>
