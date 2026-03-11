@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db import models
 from openai import OpenAI
 from openai import RateLimitError, AuthenticationError, APIConnectionError
 
@@ -159,6 +160,27 @@ def battle_list(request):
 
 
 @login_required(login_url='/account/login')
+def get_blockhash(request):
+    """Return a recent blockhash from the server-side RPC (avoids browser 403)."""
+    import requests as http_requests
+    rpc = os.environ.get('solana_rpc', 'https://api.mainnet-beta.solana.com')
+    try:
+        resp = http_requests.post(rpc, json={
+            'jsonrpc': '2.0', 'id': 1,
+            'method': 'getLatestBlockhash',
+            'params': [{'commitment': 'confirmed'}],
+        }, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()['result']['value']
+        return JsonResponse({
+            'blockhash': data['blockhash'],
+            'lastValidBlockHeight': data['lastValidBlockHeight'],
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=502)
+
+
+@login_required(login_url='/account/login')
 def generate_question(request):
     """AJAX endpoint: given a category, return an AI-generated battle question."""
     if request.method != 'POST':
@@ -265,11 +287,15 @@ def battle_detail(request, pk):
     is_player_a = user.is_authenticated and battle.player_a == user
     is_player_b = user.is_authenticated and battle.player_b == user
 
+    is_creator = user.is_authenticated and battle.posted_by == user
+    creator_needs_pay = is_creator and not is_player_a and battle.status == Battle.STATUS_WAITING
+
     can_join = (
         user.is_authenticated
         and battle.status == Battle.STATUS_WAITING
         and not is_player_a
         and not is_player_b
+        and not is_creator
     )
     player_a_needs_prompt = is_player_a and not battle.player_a_prompt and battle.status == Battle.STATUS_PENDING
     player_b_needs_prompt = is_player_b and not battle.player_b_prompt and battle.status == Battle.STATUS_PENDING
@@ -278,6 +304,8 @@ def battle_detail(request, pk):
         'battle': battle,
         'is_player_a': is_player_a,
         'is_player_b': is_player_b,
+        'is_creator': is_creator,
+        'creator_needs_pay': creator_needs_pay,
         'can_join': can_join,
         'player_a_needs_prompt': player_a_needs_prompt,
         'player_b_needs_prompt': player_b_needs_prompt,
@@ -289,8 +317,8 @@ def battle_detail(request, pk):
 @login_required(login_url='/account/login')
 def join_battle(request, pk):
     """
-    GET  → show payment instructions (battle address + stake to send).
-    POST → verify on-chain payment, assign player slot, advance status.
+    POST with a Phantom tx signature → assign player slot, advance status.
+    GET  → fallback payment instructions page.
     """
     battle = get_object_or_404(Battle, pk=pk)
     user = request.user
@@ -307,14 +335,11 @@ def join_battle(request, pk):
         battle.battle_secret = secret
         battle.save(update_fields=['battle_pubkey', 'battle_secret'])
 
-    taking_slot_a = battle.player_a is None  # first joiner takes A, second takes B
-    stake_lamports = sol_to_lamports(battle.stake)
-    # Balance we need to see to confirm this player paid
-    # Slot A: their payment alone → >= 1x stake
-    # Slot B: both paid → >= 2x stake
-    required_lamports = stake_lamports if taking_slot_a else 2 * stake_lamports
+    taking_slot_a = battle.player_a is None
 
     if request.method == 'GET':
+        stake_lamports = sol_to_lamports(battle.stake)
+        required_lamports = stake_lamports if taking_slot_a else 2 * stake_lamports
         return render(request, 'service_apps/battles/templates/battles/payment.html', {
             'battle': battle,
             'taking_slot_a': taking_slot_a,
@@ -322,67 +347,49 @@ def join_battle(request, pk):
             'required_lamports': required_lamports,
         })
 
-    # ── POST: verify payment then join ─────────────────────────────────────
-    import time
-
+    # ── POST: verify Phantom tx signature before assigning the slot ───
     signature = request.POST.get('signature', '').strip()
+    if not signature:
+        return HttpResponseBadRequest('Missing transaction signature.')
 
-    # If a tx signature was submitted, wait until the RPC reports it confirmed
-    if signature:
-        status = None
-        for _ in range(8):  # up to ~16 s
-            try:
-                status = get_signature_status(signature)
-            except ValueError as exc:
-                return render(request, 'service_apps/battles/templates/battles/payment.html', {
-                    'battle': battle, 'taking_slot_a': taking_slot_a,
-                    'stake_lamports': stake_lamports, 'required_lamports': required_lamports,
-                    'error': str(exc),
-                })
-            except Exception:
-                pass
-            if status in ('confirmed', 'finalized'):
-                break
-            time.sleep(2)
-
-    # Retry balance check to account for RPC propagation lag
-    balance = 0
-    for _ in range(6):  # up to ~12 s
+    # Verify the transaction was confirmed on-chain
+    import time
+    confirmed = False
+    for _attempt in range(8):  # poll up to ~8 seconds
         try:
-            balance = get_balance_lamports(battle.battle_pubkey)
+            status = get_signature_status(signature)
+            if status in ('confirmed', 'finalized'):
+                confirmed = True
+                break
+        except ValueError:
+            return HttpResponseBadRequest('Transaction failed on-chain.')
         except Exception:
             pass
-        if balance >= required_lamports:
-            break
-        time.sleep(2)
+        time.sleep(1)
 
-    if balance < required_lamports:
-        return render(request, 'service_apps/battles/templates/battles/payment.html', {
-            'battle': battle,
-            'taking_slot_a': taking_slot_a,
-            'stake_lamports': stake_lamports,
-            'required_lamports': required_lamports,
-            'error': f'Payment not detected yet. Battle address balance: {balance / 1e9:.4f} SOL '
-                     f'(need {required_lamports / 1e9:.4f} SOL). Wait a moment and try again.',
-        })
+    if not confirmed:
+        return HttpResponseBadRequest('Could not confirm your transaction. Please try again.')
+
+    # Verify the escrow wallet received enough funds
+    stake_lamports = sol_to_lamports(battle.stake)
+    try:
+        balance = get_balance_lamports(battle.battle_pubkey)
+    except Exception:
+        return HttpResponseBadRequest('Could not verify escrow balance. Please try again.')
+
+    expected_min = stake_lamports if taking_slot_a else 2 * stake_lamports
+    # Allow 5% tolerance for rounding / fees
+    if balance < int(expected_min * 0.95):
+        return HttpResponseBadRequest('Insufficient funds received in the battle escrow. Payment may still be processing — please refresh and try again.')
 
     # Enforce max 2 active battles per user
-    active_as_a = Battle.objects.filter(
-        player_a=user,
+    active_count = Battle.objects.filter(
         status__in=[Battle.STATUS_WAITING, Battle.STATUS_PENDING, Battle.STATUS_JUDGING]
+    ).filter(
+        models.Q(player_a=user) | models.Q(player_b=user)
     ).count()
-    active_as_b = Battle.objects.filter(
-        player_b=user,
-        status__in=[Battle.STATUS_WAITING, Battle.STATUS_PENDING, Battle.STATUS_JUDGING]
-    ).count()
-    if active_as_a + active_as_b >= 2:
-        return render(request, 'service_apps/battles/templates/battles/payment.html', {
-            'battle': battle,
-            'taking_slot_a': taking_slot_a,
-            'stake_lamports': stake_lamports,
-            'required_lamports': required_lamports,
-            'error': 'You already have 2 active battles. Finish one before joining another.',
-        })
+    if active_count >= 2:
+        return HttpResponseBadRequest('You already have 2 active battles. Finish one before joining another.')
 
     if taking_slot_a:
         battle.player_a = user

@@ -691,63 +691,50 @@
       <a href="/battles" class="battles-link">View all battles &rarr;</a>
     </div>
     <div class="battles-grid">
-      <div class="battle-card waiting">
+      {% for battle in battles %}
+      <a href="/battles/{{ battle.pk }}/" class="battle-card {% if battle.status == 'waiting' %}waiting{% elif battle.status == 'finished' %}finished{% else %}live{% endif %}" style="text-decoration:none;color:inherit;">
         <div class="battle-top">
-          <div class="battle-status">⏳ Waiting</div>
-          <div class="battle-pot-top">0.6 SOL</div>
+          <div class="battle-status">
+            {% if battle.status == 'waiting' %}⏳ Waiting
+            {% elif battle.status == 'pending' %}🔵 In Progress
+            {% elif battle.status == 'judging' %}🔥 Judging
+            {% else %}✅ Finished{% endif %}
+          </div>
+          <div class="battle-pot-top">{{ battle.stake }} SOL</div>
         </div>
         <div class="battle-players">
           <div class="battle-spot">
-            <div class="battle-circle">S</div>
-            <div class="battle-username">satoshi</div>
+            {% if battle.player_a %}
+              <div class="battle-circle {% if battle.winner == battle.player_a %}winner{% endif %}">{{ battle.player_a.username|slice:":1"|upper }}</div>
+              <div class="battle-username {% if battle.winner == battle.player_a %}winner{% endif %}">{{ battle.player_a.username }}{% if battle.winner == battle.player_a %} 👑{% endif %}</div>
+            {% else %}
+              <div class="battle-circle open">?</div>
+              <div class="battle-username open">Open</div>
+            {% endif %}
           </div>
           <div class="battle-vs-inline">VS</div>
           <div class="battle-spot">
-            <div class="battle-circle open">?</div>
-            <div class="battle-username open">Open</div>
+            {% if battle.player_b %}
+              <div class="battle-circle {% if battle.winner == battle.player_b %}winner{% endif %}">{{ battle.player_b.username|slice:":1"|upper }}</div>
+              <div class="battle-username {% if battle.winner == battle.player_b %}winner{% endif %}">{{ battle.player_b.username }}{% if battle.winner == battle.player_b %} 👑{% endif %}</div>
+            {% else %}
+              <div class="battle-circle open">?</div>
+              <div class="battle-username open">Open</div>
+            {% endif %}
           </div>
         </div>
-        <div class="battle-question">"What's the best programming language for AI?"</div>
-        <button class="battle-btn">Join Battle</button>
-      </div>
-      <div class="battle-card finished">
-        <div class="battle-top">
-          <div class="battle-status">✅ Finished</div>
-          <div class="battle-pot-top">0.4 SOL</div>
-        </div>
-        <div class="battle-players">
-          <div class="battle-spot">
-            <div class="battle-circle winner">A</div>
-            <div class="battle-username winner">alice</div>
-          </div>
-          <div class="battle-vs-inline">VS</div>
-          <div class="battle-spot">
-            <div class="battle-circle">B</div>
-            <div class="battle-username">bob</div>
-          </div>
-        </div>
-        <div class="battle-question">"What has keys but can't open locks?"</div>
-        <button class="battle-btn">View Battle</button>
-      </div>
-      <div class="battle-card live">
-        <div class="battle-top">
-          <div class="battle-status">🔥 Live</div>
-          <div class="battle-pot-top">1.0 SOL</div>
-        </div>
-        <div class="battle-players">
-          <div class="battle-spot">
-            <div class="battle-circle">C</div>
-            <div class="battle-username">charlie</div>
-          </div>
-          <div class="battle-vs-inline">VS</div>
-          <div class="battle-spot">
-            <div class="battle-circle">D</div>
-            <div class="battle-username">diana</div>
-          </div>
-        </div>
-        <div class="battle-question">"Explain quantum computing in simple terms"</div>
-        <button class="battle-btn">Watch Live</button>
-      </div>
+        <div class="battle-question">"{{ battle.topic }}"</div>
+        {% if battle.status == 'waiting' and request.user.is_authenticated and battle.player_a != request.user and battle.player_b != request.user %}
+          <span class="battle-btn">Join Battle ⚡</span>
+        {% elif battle.status == 'finished' %}
+          <span class="battle-btn">View Results →</span>
+        {% else %}
+          <span class="battle-btn">View →</span>
+        {% endif %}
+      </a>
+      {% empty %}
+      <p style="color:var(--sub);grid-column:1/-1;text-align:center;padding:2rem 0;">No battles yet — be the first to create one!</p>
+      {% endfor %}
     </div>
   </div>
 </section>
