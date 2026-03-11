@@ -28,11 +28,13 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 APPEND_SLASH = False
 
 # Set DEBUG to False for production
-DEBUG =  True #nge to False when deploying
+DEBUG =  False #nge to False when deploying
 
 # Set your ALLOWED_HOSTS for production, use environment variable for flexibility
 ALLOWED_HOSTS = [
     'localhost'
+    'www.aiclash.fun',
+    'aiclash.fun',
 ]
 
 # Required for Django 4.0+: allow CSRF on HTTPS domains
