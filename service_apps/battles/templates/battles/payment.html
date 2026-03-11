@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23e63030'/%3E%3Ctext x='50' y='68' font-size='62' font-weight='900' text-anchor='middle' fill='white' font-family='Arial'%3EAI%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pay to Join Battle #{{ battle.pk }} — AIclash.fun</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #ffffff; --surface: #f8f8f8; --surface2: #f0f0f0;
+      --border: #e8e8e8; --border2: #d8d8d8;
+      --red: #e63030; --red-dark: #c42020; --red-dim: rgba(230,48,48,.08);
+      --text: #111111; --muted: #999; --sub: #666;
+      --green: #2a9a2a;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 900; letter-spacing: -.04em; color: var(--text); text-decoration: none; }
+    .nav-logo .ai { color: var(--red); }
+    .nav-actions { display: flex; gap: .6rem; align-items: center; }
+    .btn-ghost { display: inline-flex; align-items: center; padding: .45rem 1.1rem; border: 1px solid var(--border2); border-radius: 8px; background: transparent; color: var(--sub); font-family: inherit; font-weight: 500; font-size: .875rem; text-decoration: none; cursor: pointer; transition: all .15s; }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+    .page { padding: 6rem 1.5rem 5rem; max-width: 600px; margin: 0 auto; }
+
+    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: var(--sub); text-decoration: none; font-size: .875rem; font-weight: 500; margin-bottom: 2rem; transition: color .15s; }
+    .back-link:hover { color: var(--text); }
+
+    h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: -.03em; margin-bottom: .4rem; }
+    .subtitle { color: var(--sub); font-size: .95rem; margin-bottom: 2rem; }
+
+    .card {
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.6rem; background: #fff; margin-bottom: 1.2rem;
+    }
+
+    .step {
+      display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.4rem;
+    }
+    .step:last-child { margin-bottom: 0; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--red);
+      color: #fff; font-weight: 800; font-size: .82rem;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-body { flex: 1; }
+    .step-title { font-weight: 700; font-size: 1rem; margin-bottom: .3rem; }
+    .step-sub { color: var(--sub); font-size: .875rem; line-height: 1.5; }
+
+    .amount-badge {
+      display: inline-block; font-size: 1.5rem; font-weight: 900;
+      color: var(--red); letter-spacing: -.02em; margin: .5rem 0;
+    }
+
+    .address-box {
+      display: flex; align-items: center; gap: .5rem;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 10px; padding: .6rem .9rem; margin-top: .6rem;
+    }
+    .address-text {
+      font-family: 'Courier New', monospace; font-size: .8rem;
+      color: var(--text); word-break: break-all; flex: 1;
+    }
+    .copy-btn {
+      flex-shrink: 0; padding: .3rem .7rem; border: 1px solid var(--border2);
+      border-radius: 6px; background: #fff; color: var(--sub);
+      font-family: inherit; font-size: .78rem; font-weight: 600; cursor: pointer;
+      transition: all .15s;
+    }
+    .copy-btn:hover { background: var(--surface2); color: var(--text); }
+    .copy-btn.copied { background: #e6f9e6; color: var(--green); border-color: var(--green); }
+
+    .error-banner {
+      background: #fff2f2; border: 1px solid rgba(230,48,48,.25); border-radius: 10px;
+      padding: .9rem 1.1rem; color: var(--red); font-size: .875rem; font-weight: 500;
+      margin-bottom: 1.2rem; line-height: 1.5;
+    }
+
+    .confirm-btn {
+      width: 100%; padding: .85rem; border-radius: 12px; border: none;
+      background: var(--red); color: #fff; font-family: inherit;
+      font-weight: 700; font-size: 1rem; cursor: pointer; transition: background .15s;
+    }
+    .confirm-btn:hover { background: var(--red-dark); }
+
+    .info-row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid var(--border); font-size: .875rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--sub); }
+    .info-value { font-weight: 600; }
+
+    footer { text-align: center; padding: 2rem 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .8rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><span class="ai">AI</span><span>clash</span><span style="color:var(--red);font-weight:400">.fun</span></a>
+  <div class="nav-actions">
+    {% if request.user.is_authenticated %}
+      <span style="font-size:.875rem;font-weight:600;">{{ request.user.username }}</span>
+      <a href="/account/logout" class="btn-ghost">Log out</a>
+    {% else %}
+      <a href="/account/login" class="btn-ghost">Log in</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="page">
+
+  <a href="/battles/{{ battle.pk }}/" class="back-link">← Back to battle</a>
+
+  <h1>Pay to Join Battle</h1>
+  <p class="subtitle">"{{ battle.topic|truncatechars:80 }}"</p>
+
+  {% if error %}
+  <div class="error-banner">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <!-- Battle summary -->
+  <div class="card" style="margin-bottom:1.4rem;">
+    <div class="info-row"><span class="info-label">Battle #</span><span class="info-value">{{ battle.pk }}</span></div>
+    <div class="info-row"><span class="info-label">Your slot</span><span class="info-value">{% if taking_slot_a %}Player A (first slot){% else %}Player B (second slot){% endif %}</span></div>
+    <div class="info-row"><span class="info-label">Stake to send</span><span class="info-value" style="color:var(--red);">{{ battle.stake }} SOL</span></div>
+    <div class="info-row"><span class="info-label">Winner receives</span><span class="info-value" style="color:var(--green);">95% of pot (≈ {{ battle.stake|floatformat:4 }} × 2 × 0.95 SOL)</span></div>
+  </div>
+
+  <!-- Steps -->
+  <div class="card">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Open your Phantom wallet</div>
+        <div class="step-sub">You need at least <strong>{{ battle.stake }} SOL</strong> in your wallet to enter this battle.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Send exactly <span class="amount-badge">{{ battle.stake }} SOL</span> to this address</div>
+        <div class="step-sub">This is the battle's unique escrow address. Funds are held here until the AI judge decides the winner.</div>
+        <div class="address-box">
+          <span class="address-text" id="battle-address">{{ battle.battle_pubkey }}</span>
+          <button class="copy-btn" id="copy-btn" onclick="copyAddress()">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Click confirm after sending</div>
+        <div class="step-sub">Once your transaction is confirmed on-chain (usually under 30 seconds), click the button below. We'll verify your payment automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm form -->
+  <form method="POST" action="/battles/{{ battle.pk }}/join/" style="margin-top:1.2rem;">
+    {% csrf_token %}
+    <button type="submit" class="confirm-btn">✅ I've sent the SOL — Confirm &amp; Join</button>
+  </form>
+
+</div>
+
+<footer>
+  <a href="/" class="nav-logo" style="font-size:.88rem;"><span class="ai">AI</span><span>clash</span><span style="color:var(--red);font-weight:400">.fun</span></a>
+  &nbsp;&middot;&nbsp; Winner gets 95% &middot; 5% platform fee
+</footer>
+
+<script>
+function copyAddress() {
+  const addr = document.getElementById('battle-address').textContent.trim();
+  navigator.clipboard.writeText(addr).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

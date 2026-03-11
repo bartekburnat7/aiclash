@@ -44,6 +44,12 @@ class Battle(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_WAITING)
 
+    # Solana escrow wallet for this battle
+    battle_pubkey = models.CharField(max_length=60, blank=True)
+    battle_secret  = models.TextField(blank=True)   # base58 private key — keep safe
+    player_a_paid  = models.BooleanField(default=False)
+    player_b_paid  = models.BooleanField(default=False)
+
     winner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

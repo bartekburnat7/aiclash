@@ -10,6 +10,7 @@ from openai import OpenAI
 from openai import RateLimitError, AuthenticationError, APIConnectionError
 
 from .models import Battle
+from .sol_utils import generate_battle_keypair, get_balance_lamports, get_signature_status, send_sol, sol_to_lamports
 
 
 def _get_openai_client():
@@ -98,6 +99,40 @@ REASONING: [1-3 sentence explanation]"""
     battle.winner = battle.player_a if winner_letter == 'A' else battle.player_b
     battle.status = Battle.STATUS_FINISHED
     battle.save()
+
+    _send_payout(battle)
+
+
+def _send_payout(battle: Battle):
+    """Send 95% of the pot to the winner, 5% to the house wallet."""
+    if not battle.battle_pubkey or not battle.battle_secret:
+        return
+
+    winner_pubkey = (
+        battle.winner.public_wallet_address
+        if battle.winner and battle.winner.public_wallet_address
+        else ''
+    )
+    house_pubkey = os.environ.get('house_pubkey', '')
+
+    if not winner_pubkey or not house_pubkey:
+        return
+
+    try:
+        total = get_balance_lamports(battle.battle_pubkey)
+        if total < 10_000:  # dust / unfunded battle
+            return
+
+        winner_lamports = int(total * 0.95) - 5_000  # subtract estimated tx fee
+        house_lamports  = int(total * 0.05) - 5_000
+
+        if winner_lamports > 0:
+            send_sol(battle.battle_secret, winner_pubkey, winner_lamports)
+        if house_lamports > 0:
+            send_sol(battle.battle_secret, house_pubkey, house_lamports)
+    except Exception as exc:
+        # Payout failure must never break the battle result
+        print(f'[Payout] Battle #{battle.pk} payout failed: {exc}')
 
 
 TOPIC_CATEGORIES = [
@@ -209,10 +244,13 @@ def create_battle(request):
             ctx.update({'post_topic': topic, 'post_category': category})
             return render(request, 'service_apps/battles/templates/battles/create.html', ctx)
 
+        pubkey, secret = generate_battle_keypair()
         battle = Battle.objects.create(
             posted_by=request.user,
             topic=topic,
             stake=stake_val,
+            battle_pubkey=pubkey,
+            battle_secret=secret,
         )
         return redirect('battles:detail', pk=battle.pk)
 
@@ -243,22 +281,92 @@ def battle_detail(request, pk):
         'can_join': can_join,
         'player_a_needs_prompt': player_a_needs_prompt,
         'player_b_needs_prompt': player_b_needs_prompt,
+        'rpc_url': os.environ.get('solana_rpc', 'https://api.mainnet-beta.solana.com'),
     }
     return render(request, 'service_apps/battles/templates/battles/detail.html', context)
 
 
 @login_required(login_url='/account/login')
-@require_POST
 def join_battle(request, pk):
+    """
+    GET  → show payment instructions (battle address + stake to send).
+    POST → verify on-chain payment, assign player slot, advance status.
+    """
     battle = get_object_or_404(Battle, pk=pk)
-    if battle.status != Battle.STATUS_WAITING:
-        return HttpResponseBadRequest('Battle is not open for joining.')
-
     user = request.user
-    if battle.player_a == user or battle.player_b == user:
-        return HttpResponseForbidden('You have already joined this battle.')
 
-    # Enforce max 2 active battles per user (as a player)
+    if battle.status != Battle.STATUS_WAITING:
+        return redirect('battles:detail', pk=pk)
+    if battle.player_a == user or battle.player_b == user:
+        return redirect('battles:detail', pk=pk)
+
+    # Lazy-generate keypair for battles created before Solana integration
+    if not battle.battle_pubkey:
+        pubkey, secret = generate_battle_keypair()
+        battle.battle_pubkey = pubkey
+        battle.battle_secret = secret
+        battle.save(update_fields=['battle_pubkey', 'battle_secret'])
+
+    taking_slot_a = battle.player_a is None  # first joiner takes A, second takes B
+    stake_lamports = sol_to_lamports(battle.stake)
+    # Balance we need to see to confirm this player paid
+    # Slot A: their payment alone → >= 1x stake
+    # Slot B: both paid → >= 2x stake
+    required_lamports = stake_lamports if taking_slot_a else 2 * stake_lamports
+
+    if request.method == 'GET':
+        return render(request, 'service_apps/battles/templates/battles/payment.html', {
+            'battle': battle,
+            'taking_slot_a': taking_slot_a,
+            'stake_lamports': stake_lamports,
+            'required_lamports': required_lamports,
+        })
+
+    # ── POST: verify payment then join ─────────────────────────────────────
+    import time
+
+    signature = request.POST.get('signature', '').strip()
+
+    # If a tx signature was submitted, wait until the RPC reports it confirmed
+    if signature:
+        status = None
+        for _ in range(8):  # up to ~16 s
+            try:
+                status = get_signature_status(signature)
+            except ValueError as exc:
+                return render(request, 'service_apps/battles/templates/battles/payment.html', {
+                    'battle': battle, 'taking_slot_a': taking_slot_a,
+                    'stake_lamports': stake_lamports, 'required_lamports': required_lamports,
+                    'error': str(exc),
+                })
+            except Exception:
+                pass
+            if status in ('confirmed', 'finalized'):
+                break
+            time.sleep(2)
+
+    # Retry balance check to account for RPC propagation lag
+    balance = 0
+    for _ in range(6):  # up to ~12 s
+        try:
+            balance = get_balance_lamports(battle.battle_pubkey)
+        except Exception:
+            pass
+        if balance >= required_lamports:
+            break
+        time.sleep(2)
+
+    if balance < required_lamports:
+        return render(request, 'service_apps/battles/templates/battles/payment.html', {
+            'battle': battle,
+            'taking_slot_a': taking_slot_a,
+            'stake_lamports': stake_lamports,
+            'required_lamports': required_lamports,
+            'error': f'Payment not detected yet. Battle address balance: {balance / 1e9:.4f} SOL '
+                     f'(need {required_lamports / 1e9:.4f} SOL). Wait a moment and try again.',
+        })
+
+    # Enforce max 2 active battles per user
     active_as_a = Battle.objects.filter(
         player_a=user,
         status__in=[Battle.STATUS_WAITING, Battle.STATUS_PENDING, Battle.STATUS_JUDGING]
@@ -268,14 +376,20 @@ def join_battle(request, pk):
         status__in=[Battle.STATUS_WAITING, Battle.STATUS_PENDING, Battle.STATUS_JUDGING]
     ).count()
     if active_as_a + active_as_b >= 2:
-        return HttpResponseForbidden('You already have 2 active battles. Finish them before joining another.')
+        return render(request, 'service_apps/battles/templates/battles/payment.html', {
+            'battle': battle,
+            'taking_slot_a': taking_slot_a,
+            'stake_lamports': stake_lamports,
+            'required_lamports': required_lamports,
+            'error': 'You already have 2 active battles. Finish one before joining another.',
+        })
 
-    if battle.player_a is None:
-        # Take slot A — battle still waiting for player B
+    if taking_slot_a:
         battle.player_a = user
+        battle.player_a_paid = True
     else:
-        # Take slot B — both players ready, move to pending
         battle.player_b = user
+        battle.player_b_paid = True
         battle.status = Battle.STATUS_PENDING
     battle.save()
 
