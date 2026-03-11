@@ -28,11 +28,11 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 APPEND_SLASH = False
 
 # Set DEBUG to False for production
-DEBUG =  False #nge to False when deploying
+DEBUG = True #nge to False when deploying
 
 # Set your ALLOWED_HOSTS for production, use environment variable for flexibility
 ALLOWED_HOSTS = [
-    'localhost'
+    'localhost',
     'www.aiclash.fun',
     'aiclash.fun',
 ]
